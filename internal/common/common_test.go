@@ -131,6 +131,20 @@ func TestHostEtc(t *testing.T) {
 	}
 }
 
+func TestHostEtcWithTopPath(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("windows doesn't have etc")
+	}
+	err := SetTopPathForHost("/rootfs")
+	if err != nil {
+		t.Error(err)
+	}
+	p := HostEtc("mtab")
+	if p != "/rootfs/etc/mtab" {
+		t.Errorf("invalid HostEtc, %s", p)
+	}
+}
+
 func TestGetSysctrlEnv(t *testing.T) {
 	// Append case
 	env := getSysctrlEnv([]string{"FOO=bar"})

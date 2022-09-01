@@ -23,13 +23,25 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
 var (
 	Timeout    = 3 * time.Second
 	ErrTimeout = errors.New("command timed out")
+
+	TopPath = ""
+	once    sync.Once
 )
+
+func SetTopPathForHost(path string) error {
+	if TopPath == "" {
+		once.Do(func() { TopPath = path })
+		return nil
+	}
+	return fmt.Errorf("TopPath %s already existed", TopPath)
+}
 
 type Invoker interface {
 	Command(string, ...string) ([]byte, error)
@@ -341,27 +353,27 @@ func GetEnv(key string, dfault string, combineWith ...string) string {
 }
 
 func HostProc(combineWith ...string) string {
-	return GetEnv("HOST_PROC", "/proc", combineWith...)
+	return GetEnv("HOST_PROC", filepath.Join(TopPath, "/proc"), combineWith...)
 }
 
 func HostSys(combineWith ...string) string {
-	return GetEnv("HOST_SYS", "/sys", combineWith...)
+	return GetEnv("HOST_SYS", filepath.Join(TopPath, "/sys"), combineWith...)
 }
 
 func HostEtc(combineWith ...string) string {
-	return GetEnv("HOST_ETC", "/etc", combineWith...)
+	return GetEnv("HOST_ETC", filepath.Join(TopPath, "/etc"), combineWith...)
 }
 
 func HostVar(combineWith ...string) string {
-	return GetEnv("HOST_VAR", "/var", combineWith...)
+	return GetEnv("HOST_VAR", filepath.Join(TopPath, "/var"), combineWith...)
 }
 
 func HostRun(combineWith ...string) string {
-	return GetEnv("HOST_RUN", "/run", combineWith...)
+	return GetEnv("HOST_RUN", filepath.Join(TopPath, "/run"), combineWith...)
 }
 
 func HostDev(combineWith ...string) string {
-	return GetEnv("HOST_DEV", "/dev", combineWith...)
+	return GetEnv("HOST_DEV", filepath.Join(TopPath, "/dev"), combineWith...)
 }
 
 // MockEnv set environment variable and return revert function.
