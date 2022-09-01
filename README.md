@@ -52,7 +52,7 @@ package main
 import (
     "fmt"
 
-    "github.com/shirou/gopsutil/v3/mem"
+    "github.com/CloudCare/gopsutil/mem"
     // "github.com/shirou/gopsutil/mem"  // to use v2
 )
 
